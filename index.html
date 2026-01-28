@@ -13,16 +13,13 @@
             theme: {
                 extend: {
                     colors: {
+                        // Use CSS variables for the brand colors to allow dynamic theme switching
                         brand: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            700: '#0369a1',
-                        },
-                        emerald: {
-                            500: '#10b981',
-                            600: '#059669',
+                            50: 'var(--brand-50)',
+                            100: 'var(--brand-100)',
+                            500: 'var(--brand-500)',
+                            600: 'var(--brand-600)',
+                            700: 'var(--brand-700)',
                         }
                     },
                     borderRadius: {
@@ -35,26 +32,53 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        input[type=range] { accent-color: #0ea5e9; }
+        
+        /* Theme Definitions */
+        :root {
+            /* Default - Solar (Green) */
+            --brand-50: #ecfdf5;
+            --brand-100: #d1fae5;
+            --brand-500: #10b981;
+            --brand-600: #059669;
+            --brand-700: #047857;
+        }
+
+        [data-theme="wind"] {
+            --brand-50: #f0f9ff;
+            --brand-100: #e0f2fe;
+            --brand-500: #0ea5e9;
+            --brand-600: #0284c7;
+            --brand-700: #0369a1;
+        }
+
+        [data-theme="biogas"] {
+            --brand-50: #fffbeb;
+            --brand-100: #fef3c7;
+            --brand-500: #f59e0b;
+            --brand-600: #d97706;
+            --brand-700: #b45309;
+        }
+
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.5s ease; }
+        input[type=range] { accent-color: var(--brand-500); }
         .transition-all { transition: all 0.3s ease; }
         .input-group label { display: block; font-size: 0.7rem; font-weight: 700; color: #64748b; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.025em; }
         .hint { display: block; font-size: 0.7rem; color: #94a3b8; margin-bottom: 0.5rem; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen pb-12">
+<body id="mainBody" class="bg-slate-50 text-slate-900 min-h-screen pb-12" data-theme="solar">
 
     <!-- Header -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-2">
-                <div class="bg-brand-500 p-2 rounded-lg text-white">
-                    <i class="fas fa-leaf text-xl"></i>
+                <div class="bg-brand-500 p-2 rounded-lg text-white transition-colors duration-500">
+                    <i id="headerIcon" class="fas fa-solar-panel text-xl"></i>
                 </div>
-                <h1 class="text-xl font-bold tracking-tight text-brand-700">EcoImpact <span class="text-slate-400 font-medium">India</span></h1>
+                <h1 class="text-xl font-bold tracking-tight text-brand-700 transition-colors duration-500">EcoImpact <span class="text-slate-400 font-medium">India</span></h1>
             </div>
             <div class="hidden md:block text-xs text-slate-500 font-medium bg-slate-100 px-3 py-1 rounded-full">
-                Decision Support Tool v2.6
+                Decision Support Tool v2.7
             </div>
         </div>
     </header>
@@ -66,23 +90,23 @@
             <div class="lg:col-span-4 space-y-6">
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
                     <h2 class="text-lg font-semibold mb-6 flex items-center gap-2">
-                        <i class="fas fa-sliders-h text-brand-500"></i>
+                        <i class="fas fa-sliders-h text-brand-500 transition-colors duration-500"></i>
                         Configuration
                     </h2>
                     
-                    <!-- Energy Source -->
+                    <!-- Energy Source Selection -->
                     <div class="mb-6">
                         <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2">Select Technology</label>
                         <div class="grid grid-cols-3 gap-2">
-                            <button onclick="setSource('solar')" id="btn-solar" class="source-btn flex flex-col items-center p-3 rounded-xl border-2 border-brand-500 bg-brand-50 text-brand-600 transition-all">
+                            <button onclick="setSource('solar')" id="btn-solar" class="source-btn flex flex-col items-center p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-600 transition-all">
                                 <i class="fas fa-solar-panel mb-1"></i>
                                 <span class="text-[9px] font-bold uppercase">Solar</span>
                             </button>
-                            <button onclick="setSource('biogas')" id="btn-biogas" class="source-btn flex flex-col items-center p-3 rounded-xl border-2 border-slate-100 bg-white text-slate-400 hover:border-brand-200 transition-all">
+                            <button onclick="setSource('biogas')" id="btn-biogas" class="source-btn flex flex-col items-center p-3 rounded-xl border-2 border-slate-100 bg-white text-slate-400 hover:border-amber-200 transition-all">
                                 <i class="fas fa-fire mb-1"></i>
                                 <span class="text-[9px] font-bold uppercase">Biogas</span>
                             </button>
-                            <button onclick="setSource('wind')" id="btn-wind" class="source-btn flex flex-col items-center p-3 rounded-xl border-2 border-slate-100 bg-white text-slate-400 hover:border-brand-200 transition-all">
+                            <button onclick="setSource('wind')" id="btn-wind" class="source-btn flex flex-col items-center p-3 rounded-xl border-2 border-slate-100 bg-white text-slate-400 hover:border-sky-200 transition-all">
                                 <i class="fas fa-wind mb-1"></i>
                                 <span class="text-[9px] font-bold uppercase">Wind</span>
                             </button>
@@ -92,7 +116,7 @@
                     <div class="space-y-5">
                         <!-- Capacity Input -->
                         <div class="input-group">
-                            <label id="capLabel">Intended Capacity</label>
+                            <label id="capLabel">Solar Capacity (kW)</label>
                             <span class="hint" id="capHint">Recommended size: <span id="recCap">3</span> units.</span>
                             <div class="relative">
                                 <input id="capInput" type="number" value="3" step="0.5" class="w-full rounded-lg border-slate-200 pl-4 pr-12 py-2 text-sm focus:ring-brand-500 focus:border-brand-500" oninput="updateCalculation()">
@@ -100,7 +124,7 @@
                             </div>
                         </div>
 
-                        <!-- Roof Area (Critical Constraint) -->
+                        <!-- Roof Area -->
                         <div class="input-group" id="roofAreaContainer">
                             <label>Available Roof Area</label>
                             <span class="hint">~10 sq. m required per 1 kW Solar PV.</span>
@@ -115,7 +139,7 @@
                             <label>Avg Monthly Bill (₹)</label>
                             <span class="hint">Used to calculate usable clean energy offset.</span>
                             <div class="flex justify-between mb-1">
-                                <span class="text-brand-600 font-bold text-sm" id="billDisplay">₹2,500</span>
+                                <span class="text-brand-600 font-bold text-sm transition-colors duration-500" id="billDisplay">₹2,500</span>
                             </div>
                             <input id="billInput" type="range" min="500" max="15000" step="100" value="2500" 
                                 class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer"
@@ -146,11 +170,11 @@
                     </div>
 
                     <div class="pt-6 mt-6 border-t border-slate-100">
-                        <div id="advisoryBox" class="bg-amber-50 rounded-xl p-4 border border-amber-100">
-                            <h4 class="text-[10px] font-bold text-amber-700 uppercase mb-1 flex items-center gap-1">
+                        <div id="advisoryBox" class="bg-brand-50 rounded-xl p-4 border border-brand-100 transition-colors duration-500">
+                            <h4 class="text-[10px] font-bold text-brand-700 uppercase mb-1 flex items-center gap-1 transition-colors duration-500">
                                 <i class="fas fa-exclamation-triangle"></i> Advisory Note
                             </h4>
-                            <p class="text-[11px] text-amber-800 leading-relaxed" id="advisoryText">
+                            <p class="text-[11px] text-brand-800 leading-relaxed transition-colors duration-500" id="advisoryText">
                                 Technically suitable for most households.
                             </p>
                         </div>
@@ -171,13 +195,13 @@
                         <p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Net Payable</p>
                         <p class="text-xl font-bold text-slate-800">₹<span id="resNetCost">0</span></p>
                     </div>
-                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 transition-all hover:border-emerald-300">
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 transition-all hover:border-brand-300">
                         <p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Annual Savings</p>
-                        <p class="text-xl font-bold text-emerald-600">₹<span id="resAnnualSavings">0</span></p>
+                        <p class="text-xl font-bold text-brand-600 transition-colors duration-500">₹<span id="resAnnualSavings">0</span></p>
                     </div>
                     <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 transition-all hover:border-brand-300">
                         <p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Payback Period</p>
-                        <p class="text-xl font-bold text-brand-600"><span id="resPayback">0</span> <span class="text-xs font-normal text-slate-500">Yrs</span></p>
+                        <p class="text-xl font-bold text-brand-600 transition-colors duration-500"><span id="resPayback">0</span> <span class="text-xs font-normal text-slate-500">Yrs</span></p>
                     </div>
                 </div>
 
@@ -185,13 +209,13 @@
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                     <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
                         <h3 class="font-semibold text-slate-700 flex items-center gap-2">
-                            <i class="fas fa-chart-line text-brand-500"></i> Impact Summary
+                            <i class="fas fa-chart-line text-brand-500 transition-colors duration-500"></i> Impact Summary
                         </h3>
                         <div class="flex gap-2">
-                            <button onclick="shareWhatsApp()" class="text-xs bg-emerald-500 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-600 transition-colors font-medium flex items-center gap-1.5">
+                            <button onclick="shareWhatsApp()" class="text-xs bg-emerald-500 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-600 transition-colors font-medium flex items-center gap-1.5 shadow-sm">
                                 <i class="fab fa-whatsapp"></i> Share
                             </button>
-                            <button onclick="exportPDF()" class="text-xs bg-slate-800 text-white px-3 py-1.5 rounded-lg hover:bg-slate-900 transition-colors font-medium flex items-center gap-1.5">
+                            <button onclick="exportPDF()" class="text-xs bg-slate-800 text-white px-3 py-1.5 rounded-lg hover:bg-slate-900 transition-colors font-medium flex items-center gap-1.5 shadow-sm">
                                 <i class="fas fa-file-pdf"></i> Export PDF
                             </button>
                         </div>
@@ -205,14 +229,14 @@
                                     <span class="text-slate-500 italic">Total Project Cost</span>
                                     <span class="font-semibold" id="tableCost">₹0</span>
                                 </div>
-                                <div class="flex justify-between items-center text-sm text-emerald-600">
+                                <div class="flex justify-between items-center text-sm text-brand-600 transition-colors duration-500">
                                     <span class="font-medium">Govt. Subsidy / Benefits (-)</span>
                                     <span class="font-bold" id="tableSubsidy">₹0</span>
                                 </div>
                                 <div class="h-px bg-slate-100"></div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-sm font-bold text-slate-700">Net Investment</span>
-                                    <span class="text-lg font-black text-brand-600" id="tableNet">₹0</span>
+                                    <span class="text-lg font-black text-brand-600 transition-colors duration-500" id="tableNet">₹0</span>
                                 </div>
 
                                 <div class="mt-8 p-4 bg-slate-50 rounded-xl border border-dashed border-slate-200">
@@ -227,27 +251,27 @@
                             </div>
 
                             <!-- Enviro Section -->
-                            <div class="bg-emerald-50/50 rounded-2xl p-6 border border-emerald-100 flex flex-col justify-center">
-                                <h4 class="text-sm font-bold text-emerald-800 mb-6 flex items-center gap-2">
+                            <div class="bg-brand-50 rounded-2xl p-6 border border-brand-100 flex flex-col justify-center transition-colors duration-500">
+                                <h4 class="text-sm font-bold text-brand-800 mb-6 flex items-center gap-2 transition-colors duration-500">
                                     <i class="fas fa-leaf"></i> Environmental Benefit
                                 </h4>
                                 <div class="space-y-6">
                                     <div class="flex items-center gap-4">
-                                        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-emerald-600 shadow-sm border border-emerald-100">
-                                            <i class="fas fa-cloud-sun text-xl"></i>
+                                        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-brand-600 shadow-sm border border-brand-100 transition-colors duration-500">
+                                            <i id="enviroIcon1" class="fas fa-cloud-sun text-xl"></i>
                                         </div>
                                         <div>
-                                            <p class="text-lg font-bold text-emerald-700" id="resCO2">0.00 tons</p>
-                                            <p class="text-xs text-emerald-600">CO₂ Avoided Annually</p>
+                                            <p class="text-lg font-bold text-brand-700 transition-colors duration-500" id="resCO2">0.00 tons</p>
+                                            <p class="text-xs text-brand-600 transition-colors duration-500">CO₂ Avoided Annually</p>
                                         </div>
                                     </div>
                                     <div class="flex items-center gap-4">
-                                        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-emerald-600 shadow-sm border border-emerald-100">
-                                            <i class="fas fa-tree text-xl"></i>
+                                        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-brand-600 shadow-sm border border-brand-100 transition-colors duration-500">
+                                            <i id="enviroIcon2" class="fas fa-tree text-xl"></i>
                                         </div>
                                         <div>
-                                            <p class="text-lg font-bold text-emerald-700" id="resTrees">0</p>
-                                            <p class="text-xs text-emerald-600">Equivalent Trees Planted</p>
+                                            <p class="text-lg font-bold text-brand-700 transition-colors duration-500" id="resTrees">0</p>
+                                            <p class="text-xs text-brand-600 transition-colors duration-500">Equivalent Trees Planted</p>
                                         </div>
                                     </div>
                                 </div>
@@ -263,11 +287,11 @@
                             <h3 class="text-lg font-bold mb-1">Verify your site</h3>
                             <p class="text-slate-400 text-sm">Connect with MNRE approved vendors for precise assessments.</p>
                         </div>
-                        <button onclick="findVendors()" class="bg-brand-500 hover:bg-brand-400 px-6 py-3 rounded-xl font-bold text-sm transition-all transform hover:scale-105 shadow-xl">
+                        <button onclick="findVendors()" class="bg-brand-500 hover:bg-brand-400 px-6 py-3 rounded-xl font-bold text-sm transition-all transform hover:scale-105 shadow-xl duration-500">
                             Find Local Vendors <i class="fas fa-map-marker-alt ml-2"></i>
                         </button>
                     </div>
-                    <i class="fas fa-solar-panel absolute -right-4 -bottom-4 text-8xl text-slate-700/20 group-hover:text-slate-700/40 transition-all"></i>
+                    <i id="bgIcon" class="fas fa-solar-panel absolute -right-4 -bottom-4 text-8xl text-slate-700/20 group-hover:text-slate-700/40 transition-all"></i>
                 </div>
 
                 <p class="text-[10px] text-slate-400 text-center leading-relaxed">
@@ -285,12 +309,29 @@
 
         function setSource(source) {
             currentSource = source;
+            const body = document.getElementById('mainBody');
+            
+            // Reset button classes
             document.querySelectorAll('.source-btn').forEach(btn => {
-                btn.classList.remove('border-brand-500', 'bg-brand-50', 'text-brand-600');
-                btn.classList.add('border-slate-100', 'bg-white', 'text-slate-400');
+                btn.className = 'source-btn flex flex-col items-center p-3 rounded-xl border-2 border-slate-100 bg-white text-slate-400 hover:opacity-80 transition-all';
             });
-            document.getElementById(`btn-${source}`).classList.add('border-brand-500', 'bg-brand-50', 'text-brand-600');
 
+            // Set Specific Highlighting Colors and Theme
+            if (source === 'solar') {
+                body.setAttribute('data-theme', 'solar');
+                document.getElementById('btn-solar').className = 'source-btn flex flex-col items-center p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-600 transition-all';
+                updateIcons('fa-solar-panel');
+            } else if (source === 'wind') {
+                body.setAttribute('data-theme', 'wind');
+                document.getElementById('btn-wind').className = 'source-btn flex flex-col items-center p-3 rounded-xl border-2 border-sky-500 bg-sky-50 text-sky-600 transition-all';
+                updateIcons('fa-wind');
+            } else if (source === 'biogas') {
+                body.setAttribute('data-theme', 'biogas');
+                document.getElementById('btn-biogas').className = 'source-btn flex flex-col items-center p-3 rounded-xl border-2 border-amber-500 bg-amber-50 text-amber-600 transition-all';
+                updateIcons('fa-fire');
+            }
+
+            // Update Input labels/units
             const capLabel = document.getElementById('capLabel');
             const capUnit = document.getElementById('capUnit');
             const capHint = document.getElementById('capHint');
@@ -315,7 +356,13 @@
             updateCalculation();
         }
 
+        function updateIcons(iconClass) {
+            document.getElementById('headerIcon').className = `fas ${iconClass} text-xl`;
+            document.getElementById('bgIcon').className = `fas ${iconClass} absolute -right-4 -bottom-4 text-8xl text-slate-700/20 group-hover:text-slate-700/40 transition-all`;
+        }
+
         function updateCalculation() {
+            // Get CSS Variables for calculations (not strictly needed but useful for consistent UI logic)
             const tariff = Number(document.getElementById('stateSelect').value);
             const bill = Number(document.getElementById('billInput').value);
             const rawCap = Number(document.getElementById('capInput').value);
@@ -324,7 +371,6 @@
             
             document.getElementById('billDisplay').innerText = '₹' + bill.toLocaleString('en-IN');
 
-            // Suggested capacity based on bill
             const suggestedCap = Math.max(1, Math.min(10, Math.round((bill / tariff * 12 / 1600) * 2) / 2));
             document.getElementById('recCap').innerText = suggestedCap;
 
@@ -335,21 +381,17 @@
             let advisory = "";
 
             if (currentSource === 'solar') {
-                // Constraint Check: 1kW ~ 10 sq. m
                 const maxCapByRoof = roofArea / 10;
                 if (rawCap > maxCapByRoof) {
                     advisory += `Warning: Requested size exceeds roof area capacity (max ~${maxCapByRoof.toFixed(1)} kW). `;
                     finalCap = maxCapByRoof;
                 }
-                
                 annualGen = finalCap * 1600;
                 projectCost = finalCap * (finalCap > 3 ? 55000 : 60000);
-                // PM Surya Ghar Yojana 2025 Norms
                 if (finalCap >= 3) subsidy = 78000;
                 else if (finalCap >= 2) subsidy = 60000;
                 else if (finalCap >= 1) subsidy = 30000;
                 else subsidy = (finalCap * 30000);
-
                 if (ownership === 'shared') advisory += "Note: Society NOC and shared metering policies usually apply.";
             } else if (currentSource === 'biogas') {
                 annualGen = rawCap * 365 * 2;
@@ -371,11 +413,9 @@
             const annualSavings = usableEnergy * tariff;
             const paybackYrs = annualSavings > 100 ? netInvestment / annualSavings : 25;
 
-            // Environmental
             const co2Saved = (usableEnergy * 0.82) / 1000;
             const treesPlanted = Math.round(co2Saved * 45);
 
-            // Update UI
             document.getElementById('resEnergy').innerText = Math.round(usableEnergy).toLocaleString('en-IN');
             document.getElementById('resNetCost').innerText = Math.round(netInvestment).toLocaleString('en-IN');
             document.getElementById('resAnnualSavings').innerText = Math.round(annualSavings).toLocaleString('en-IN');
@@ -389,12 +429,9 @@
             document.getElementById('resTrees').innerText = treesPlanted;
             document.getElementById('advisoryText').innerText = advisory || "Optimal choice for long-term energy security.";
 
-            // Payback Bar
-            const barProgress = Math.min(100, (1 - (paybackYrs / 15)) * 100);
             document.getElementById('paybackBar').style.width = Math.max(5, (100 - (paybackYrs * 6.6))) + '%';
             document.getElementById('roiLabel').innerText = paybackYrs > 20 ? "Long-term Profitability" : `Break even in ~${paybackYrs.toFixed(1)} years`;
 
-            // Store results for Export
             lastResultData = {
                 source: currentSource.toUpperCase(),
                 cap: finalCap.toFixed(1),
@@ -417,6 +454,7 @@
                         `Payback: ${lastResultData.payback} Years\n` +
                         `CO2 Saved: ${lastResultData.co2} Tons\n` +
                         `--------------------------\n` +
+                        `Try the tool: https://can9899.github.io/EcoImpactIndia/\n` +
                         `Generated via EcoImpact India Estimator`;
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
@@ -427,12 +465,12 @@
             const date = new Date().toLocaleDateString();
 
             doc.setFontSize(22);
-            doc.setTextColor(3, 105, 161); // brand-700
+            doc.setTextColor(3, 105, 161);
             doc.text("Renewable Energy Impact Report", 20, 30);
             
             doc.setFontSize(10);
             doc.setTextColor(100);
-            doc.text(`Generated on: ${date} | EcoImpact India Tool v2.6`, 20, 38);
+            doc.text(`Generated on: ${date} | EcoImpact India Tool v2.7`, 20, 38);
             
             doc.setLineWidth(0.5);
             doc.setDrawColor(200);
