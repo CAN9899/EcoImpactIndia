@@ -3,276 +3,333 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EcoImpact India - Advanced Renewable Estimator</title>
+    <title>EcoImpact India - Decision Support System</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- jsPDF for PDF export -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        // Use CSS variables for the brand colors to allow dynamic theme switching
+                        zinc: { 850: '#202022' },
                         brand: {
                             50: 'var(--brand-50)',
-                            100: 'var(--brand-100)',
                             500: 'var(--brand-500)',
                             600: 'var(--brand-600)',
-                            700: 'var(--brand-700)',
+                            900: 'var(--brand-900)',
                         }
                     },
-                    borderRadius: {
-                        'xl': '1rem',
-                        '2xl': '1.5rem',
+                    fontFamily: {
+                        sans: ['Manrope', 'sans-serif'],
+                        body: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    boxShadow: {
+                        'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
                     }
                 }
             }
         }
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap');
         
-        /* Theme Definitions */
         :root {
-            /* Default - Solar (Green) */
-            --brand-50: #ecfdf5;
-            --brand-100: #d1fae5;
-            --brand-500: #10b981;
+            /* Solar (Default) - Deep Forest Green */
+            --brand-50: #F2F8F5;
+            --brand-500: #10B981;
             --brand-600: #059669;
-            --brand-700: #047857;
+            --brand-900: #064E3B;
         }
 
         [data-theme="wind"] {
-            --brand-50: #f0f9ff;
-            --brand-100: #e0f2fe;
-            --brand-500: #0ea5e9;
-            --brand-600: #0284c7;
-            --brand-700: #0369a1;
+            /* Wind - Technical Blue */
+            --brand-50: #F0F7FF;
+            --brand-500: #0EA5E9;
+            --brand-600: #0284C7;
+            --brand-900: #0C4A6E;
         }
 
         [data-theme="biogas"] {
-            --brand-50: #fffbeb;
-            --brand-100: #fef3c7;
-            --brand-500: #f59e0b;
-            --brand-600: #d97706;
-            --brand-700: #b45309;
+            /* Biogas - Earthy Amber */
+            --brand-50: #FFFBEB;
+            --brand-500: #F59E0B;
+            --brand-600: #D97706;
+            --brand-900: #78350F;
         }
 
-        body { font-family: 'Inter', sans-serif; transition: background-color 0.5s ease; }
-        input[type=range] { accent-color: var(--brand-500); }
-        .transition-all { transition: all 0.3s ease; }
-        .input-group label { display: block; font-size: 0.7rem; font-weight: 700; color: #64748b; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.025em; }
-        .hint { display: block; font-size: 0.7rem; color: #94a3b8; margin-bottom: 0.5rem; }
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        h1, h2, h3, h4, button { font-family: 'Manrope', sans-serif; }
+        
+        /* Minimalist Range Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: var(--brand-600);
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 0 4px #ffffff;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #E4E4E7; /* Zinc-200 */
+            border-radius: 2px;
+        }
+        
+        /* Clean Input Focus */
+        input[type=number]:focus, select:focus {
+            outline: none;
+            border-color: var(--brand-500);
+            box-shadow: 0 0 0 1px var(--brand-500);
+        }
+
+        /* Smooth Theme Transition */
+        .theme-transition { transition: color 0.3s ease, border-color 0.3s ease, background-color 0.3s ease; }
     </style>
 </head>
-<body id="mainBody" class="bg-slate-50 text-slate-900 min-h-screen pb-12" data-theme="solar">
+<body id="mainBody" class="bg-[#FAFAFA] text-zinc-900 min-h-screen pb-12 theme-transition" data-theme="solar">
 
     <!-- Header -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <div class="bg-brand-500 p-2 rounded-lg text-white transition-colors duration-500">
-                    <i id="headerIcon" class="fas fa-solar-panel text-xl"></i>
+    <header class="bg-white/80 backdrop-blur-md border-b border-zinc-200 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i id="headerIcon" class="fas fa-solar-panel text-lg text-brand-600 theme-transition"></i>
+                <div class="flex flex-col">
+                    <span class="text-sm font-bold tracking-tight text-zinc-900 leading-none">ECOIMPACT<span class="text-zinc-400 font-normal">INDIA</span></span>
+                    <span class="text-[9px] text-zinc-500 uppercase tracking-widest mt-0.5">Techno-Economic Feasibility Model</span>
                 </div>
-                <h1 class="text-xl font-bold tracking-tight text-brand-700 transition-colors duration-500">EcoImpact <span class="text-slate-400 font-medium">India</span></h1>
             </div>
-            <div class="hidden md:block text-xs text-slate-500 font-medium bg-slate-100 px-3 py-1 rounded-full">
-                Decision Support Tool v2.7
+            <div class="hidden md:flex items-center gap-2 text-[10px] font-mono text-zinc-400 border border-zinc-200 px-3 py-1.5 rounded-full">
+                <span>IEC 61215</span>
+                <span class="text-zinc-300">|</span>
+                <span>CEA v19</span>
             </div>
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto px-4 mt-8">
-        <div class="grid lg:grid-cols-12 gap-8">
+    <main class="max-w-6xl mx-auto px-6 mt-10">
+        <div class="grid lg:grid-cols-12 gap-10">
             
             <!-- Sidebar: Inputs -->
-            <div class="lg:col-span-4 space-y-6">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <h2 class="text-lg font-semibold mb-6 flex items-center gap-2">
-                        <i class="fas fa-sliders-h text-brand-500 transition-colors duration-500"></i>
-                        Configuration
-                    </h2>
-                    
-                    <!-- Energy Source Selection -->
-                    <div class="mb-6">
-                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2">Select Technology</label>
-                        <div class="grid grid-cols-3 gap-2">
-                            <button onclick="setSource('solar')" id="btn-solar" class="source-btn flex flex-col items-center p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-600 transition-all">
-                                <i class="fas fa-solar-panel mb-1"></i>
-                                <span class="text-[9px] font-bold uppercase">Solar</span>
-                            </button>
-                            <button onclick="setSource('biogas')" id="btn-biogas" class="source-btn flex flex-col items-center p-3 rounded-xl border-2 border-slate-100 bg-white text-slate-400 hover:border-amber-200 transition-all">
-                                <i class="fas fa-fire mb-1"></i>
-                                <span class="text-[9px] font-bold uppercase">Biogas</span>
-                            </button>
-                            <button onclick="setSource('wind')" id="btn-wind" class="source-btn flex flex-col items-center p-3 rounded-xl border-2 border-slate-100 bg-white text-slate-400 hover:border-sky-200 transition-all">
-                                <i class="fas fa-wind mb-1"></i>
-                                <span class="text-[9px] font-bold uppercase">Wind</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="space-y-5">
-                        <!-- Capacity Input -->
-                        <div class="input-group">
-                            <label id="capLabel">Solar Capacity (kW)</label>
-                            <span class="hint" id="capHint">Recommended size: <span id="recCap">3</span> units.</span>
-                            <div class="relative">
-                                <input id="capInput" type="number" value="3" step="0.5" class="w-full rounded-lg border-slate-200 pl-4 pr-12 py-2 text-sm focus:ring-brand-500 focus:border-brand-500" oninput="updateCalculation()">
-                                <span class="absolute right-4 top-2 text-slate-400 text-xs" id="capUnit">kW</span>
+            <div class="lg:col-span-4 space-y-8">
+                <div class="bg-white p-1 rounded-2xl border border-zinc-200 shadow-subtle">
+                    <div class="p-6 space-y-8">
+                        <div>
+                            <h2 class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-4">Technology Selection</h2>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button onclick="setSource('solar')" id="btn-solar" class="group relative flex flex-col items-center justify-center p-3 rounded-lg border border-zinc-200 hover:border-brand-500 transition-all">
+                                    <i class="fas fa-solar-panel mb-2 text-zinc-400 group-hover:text-brand-600 transition-colors"></i>
+                                    <span class="text-[10px] font-semibold text-zinc-600 group-hover:text-zinc-900">Solar PV</span>
+                                </button>
+                                <button onclick="setSource('biogas')" id="btn-biogas" class="group relative flex flex-col items-center justify-center p-3 rounded-lg border border-zinc-200 hover:border-brand-500 transition-all">
+                                    <i class="fas fa-fire mb-2 text-zinc-400 group-hover:text-brand-600 transition-colors"></i>
+                                    <span class="text-[10px] font-semibold text-zinc-600 group-hover:text-zinc-900">Biogas</span>
+                                </button>
+                                <button onclick="setSource('wind')" id="btn-wind" class="group relative flex flex-col items-center justify-center p-3 rounded-lg border border-zinc-200 hover:border-brand-500 transition-all">
+                                    <i class="fas fa-wind mb-2 text-zinc-400 group-hover:text-brand-600 transition-colors"></i>
+                                    <span class="text-[10px] font-semibold text-zinc-600 group-hover:text-zinc-900">Wind</span>
+                                </button>
                             </div>
                         </div>
 
-                        <!-- Roof Area -->
-                        <div class="input-group" id="roofAreaContainer">
-                            <label>Available Roof Area</label>
-                            <span class="hint">~10 sq. m required per 1 kW Solar PV.</span>
-                            <div class="relative">
-                                <input id="roofAreaInput" type="number" value="40" class="w-full rounded-lg border-slate-200 pl-4 pr-16 py-2 text-sm focus:ring-brand-500 focus:border-brand-500" oninput="updateCalculation()">
-                                <span class="absolute right-4 top-2 text-slate-400 text-xs">sq. m</span>
+                        <div class="space-y-6">
+                            <!-- Capacity Input -->
+                            <div class="group">
+                                <div class="flex justify-between items-end mb-2">
+                                    <label id="capLabel" class="text-xs font-semibold text-zinc-700">Installed Capacity</label>
+                                    <span id="recCapWrap" class="text-[10px] text-zinc-400">Rec: <span id="recCap" class="font-mono text-zinc-600">3</span> <span id="recUnit">kWp</span></span>
+                                </div>
+                                <div class="relative">
+                                    <input id="capInput" type="number" value="3" step="0.1" class="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2.5 text-sm font-mono text-zinc-800 transition-colors" oninput="updateCalculation()">
+                                    <span class="absolute right-3 top-2.5 text-xs text-zinc-400 font-mono pointer-events-none" id="capUnit">kWp</span>
+                                </div>
+                            </div>
+
+                            <!-- Roof Area -->
+                            <div class="group" id="roofAreaContainer">
+                                <div class="flex justify-between items-end mb-2">
+                                    <label class="text-xs font-semibold text-zinc-700">Available Area</label>
+                                    <span class="text-[10px] text-zinc-400">Shadow-free</span>
+                                </div>
+                                <div class="relative">
+                                    <input id="roofAreaInput" type="number" value="40" class="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2.5 text-sm font-mono text-zinc-800 transition-colors" oninput="updateCalculation()">
+                                    <span class="absolute right-3 top-2.5 text-xs text-zinc-400 font-mono pointer-events-none">m²</span>
+                                </div>
+                            </div>
+
+                            <!-- Monthly Bill -->
+                            <div class="group">
+                                <div class="flex justify-between items-end mb-3">
+                                    <label class="text-xs font-semibold text-zinc-700">Monthly Energy Demand</label>
+                                    <span class="text-sm font-mono font-medium text-brand-600 theme-transition" id="billDisplay">₹2,500</span>
+                                </div>
+                                <input id="billInput" type="range" min="500" max="15000" step="100" value="2500" class="w-full" oninput="updateCalculation()">
+                            </div>
+
+                            <!-- State Selection -->
+                            <div class="group">
+                                <label class="block text-xs font-semibold text-zinc-700 mb-2">Grid Tariff Zone</label>
+                                <div class="relative">
+                                    <select id="stateSelect" onchange="updateCalculation()" class="w-full bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2.5 text-xs text-zinc-700 appearance-none cursor-pointer">
+                                        <option value="7.5" selected>Maharashtra (₹7.5/kWh)</option>
+                                        <option value="6.5">Delhi/NCR (₹6.5/kWh)</option>
+                                        <option value="6.0">Karnataka/TN (₹6.0/kWh)</option>
+                                        <option value="5.5">Gujarat/Rajasthan (₹5.5/kWh)</option>
+                                        <option value="5.0">National Avg (₹5.0/kWh)</option>
+                                    </select>
+                                    <i class="fas fa-chevron-down absolute right-3 top-3 text-xs text-zinc-400 pointer-events-none"></i>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Monthly Bill -->
-                        <div class="input-group">
-                            <label>Avg Monthly Bill (₹)</label>
-                            <span class="hint">Used to calculate usable clean energy offset.</span>
-                            <div class="flex justify-between mb-1">
-                                <span class="text-brand-600 font-bold text-sm transition-colors duration-500" id="billDisplay">₹2,500</span>
-                            </div>
-                            <input id="billInput" type="range" min="500" max="15000" step="100" value="2500" 
-                                class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer"
-                                oninput="updateCalculation()">
-                        </div>
-
-                        <!-- Ownership -->
-                        <div class="input-group">
-                            <label>Ownership Status</label>
-                            <select id="ownSelect" onchange="updateCalculation()" class="w-full rounded-lg border-slate-200 text-xs py-2 focus:ring-brand-500 focus:border-brand-500">
-                                <option value="owned" selected>Self-Owned House</option>
-                                <option value="shared">Apartment / Society</option>
-                                <option value="rented">Rented Property</option>
-                            </select>
-                        </div>
-                        
-                        <!-- State Selection -->
-                        <div class="input-group">
-                            <label>Select State</label>
-                            <select id="stateSelect" onchange="updateCalculation()" class="w-full rounded-lg border-slate-200 text-xs py-2 focus:ring-brand-500 focus:border-brand-500">
-                                <option value="7.5" selected>Maharashtra (~₹7.5/u)</option>
-                                <option value="6.5">Delhi/NCR (~₹6.5/u)</option>
-                                <option value="6.0">KA/TN (~₹6.0/u)</option>
-                                <option value="5.5">GJ/RJ (~₹5.5/u)</option>
-                                <option value="5.0">Others (~₹5.0/u)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="pt-6 mt-6 border-t border-slate-100">
-                        <div id="advisoryBox" class="bg-brand-50 rounded-xl p-4 border border-brand-100 transition-colors duration-500">
-                            <h4 class="text-[10px] font-bold text-brand-700 uppercase mb-1 flex items-center gap-1 transition-colors duration-500">
-                                <i class="fas fa-exclamation-triangle"></i> Advisory Note
-                            </h4>
-                            <p class="text-[11px] text-brand-800 leading-relaxed transition-colors duration-500" id="advisoryText">
-                                Technically suitable for most households.
-                            </p>
-                        </div>
+                         <!-- Advanced Toggle -->
+                         <div class="pt-6 border-t border-zinc-100">
+                             <button onclick="toggleAdvanced()" class="w-full flex items-center justify-between text-xs font-medium text-zinc-500 hover:text-zinc-800 transition-colors">
+                                 <span>Advanced Parameters</span>
+                                 <i id="advIcon" class="fas fa-plus text-[10px]"></i>
+                             </button>
+                             
+                             <div id="advancedParams" class="hidden pt-4 space-y-5">
+                                <div class="space-y-2">
+                                    <div class="flex justify-between text-[10px]">
+                                        <span class="text-zinc-500">Performance Ratio</span>
+                                        <span id="prDisplay" class="font-mono text-zinc-700">78%</span>
+                                    </div>
+                                    <input id="prInput" type="range" min="0.5" max="0.9" step="0.01" value="0.78" class="w-full" oninput="updateCalculation()">
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between text-[10px]">
+                                        <span class="text-zinc-500">Degradation (Linear)</span>
+                                        <span id="degDisplay" class="font-mono text-zinc-700">0.7% p.a.</span>
+                                    </div>
+                                    <input id="degInput" type="range" min="0.1" max="2.0" step="0.1" value="0.7" class="w-full" oninput="updateCalculation()">
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between text-[10px]">
+                                        <span class="text-zinc-500">Tariff Inflation (CAGR)</span>
+                                        <span id="infDisplay" class="font-mono text-zinc-700">5.5%</span>
+                                    </div>
+                                    <input id="infInput" type="range" min="0" max="10" step="0.5" value="5.5" class="w-full" oninput="updateCalculation()">
+                                </div>
+                             </div>
+                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Main Content: Results -->
-            <div class="lg:col-span-8 space-y-6">
+            <div class="lg:col-span-8 space-y-8">
                 
-                <!-- Quick Stats -->
+                <!-- Financial KPIs -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 transition-all hover:border-brand-300">
-                        <p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Usable Energy</p>
-                        <p class="text-xl font-bold text-slate-800"><span id="resEnergy">0</span> <span class="text-xs font-normal text-slate-500">kWh/yr</span></p>
+                    <!-- LCOE -->
+                    <div class="bg-white p-5 rounded-xl border border-zinc-200 shadow-subtle group hover:border-brand-500 transition-all duration-300">
+                        <p class="text-[10px] uppercase tracking-wider font-semibold text-zinc-400 mb-2">LCOE (Cost/Energy)</p>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-2xl font-mono font-medium text-zinc-900">₹<span id="resLCOE">0.00</span></span>
+                            <span class="text-[10px] text-zinc-400">/kWh</span>
+                        </div>
+                        <p class="text-[10px] text-zinc-400 mt-1">Grid: ₹<span id="gridRef">0.00</span></p>
                     </div>
-                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 transition-all hover:border-brand-300">
-                        <p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Net Payable</p>
-                        <p class="text-xl font-bold text-slate-800">₹<span id="resNetCost">0</span></p>
+
+                    <!-- Net CAPEX -->
+                    <div class="bg-white p-5 rounded-xl border border-zinc-200 shadow-subtle group hover:border-brand-500 transition-all duration-300">
+                        <p class="text-[10px] uppercase tracking-wider font-semibold text-zinc-400 mb-2">Net CAPEX</p>
+                        <div class="flex items-baseline">
+                            <span class="text-2xl font-mono font-medium text-zinc-900">₹<span id="resNetCost">0</span></span>
+                        </div>
                     </div>
-                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 transition-all hover:border-brand-300">
-                        <p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Annual Savings</p>
-                        <p class="text-xl font-bold text-brand-600 transition-colors duration-500">₹<span id="resAnnualSavings">0</span></p>
+
+                    <!-- Lifetime Savings -->
+                    <div class="bg-white p-5 rounded-xl border border-zinc-200 shadow-subtle group hover:border-brand-500 transition-all duration-300">
+                        <p class="text-[10px] uppercase tracking-wider font-semibold text-zinc-400 mb-2">Lifetime Savings</p>
+                        <div class="flex items-baseline">
+                            <span class="text-2xl font-mono font-medium text-brand-600 theme-transition">₹<span id="resLifetimeSavings">0</span></span>
+                        </div>
+                        <p class="text-[10px] text-zinc-400 mt-1">Projected OPEX</p>
                     </div>
-                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 transition-all hover:border-brand-300">
-                        <p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Payback Period</p>
-                        <p class="text-xl font-bold text-brand-600 transition-colors duration-500"><span id="resPayback">0</span> <span class="text-xs font-normal text-slate-500">Yrs</span></p>
+
+                    <!-- ROI -->
+                    <div class="bg-white p-5 rounded-xl border border-zinc-200 shadow-subtle group hover:border-brand-500 transition-all duration-300">
+                        <p class="text-[10px] uppercase tracking-wider font-semibold text-zinc-400 mb-2">ROI Period</p>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-2xl font-mono font-medium text-zinc-900"><span id="resPayback">0</span></span>
+                            <span class="text-[10px] text-zinc-400">Yrs</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Main Analysis Card -->
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                        <h3 class="font-semibold text-slate-700 flex items-center gap-2">
-                            <i class="fas fa-chart-line text-brand-500 transition-colors duration-500"></i> Impact Summary
-                        </h3>
-                        <div class="flex gap-2">
-                            <button onclick="shareWhatsApp()" class="text-xs bg-emerald-500 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-600 transition-colors font-medium flex items-center gap-1.5 shadow-sm">
+                <!-- Analysis Panel -->
+                <div class="bg-white rounded-2xl border border-zinc-200 shadow-subtle overflow-hidden">
+                    <div class="px-6 py-4 border-b border-zinc-100 flex justify-between items-center">
+                        <h3 class="text-sm font-semibold text-zinc-800 tracking-tight">Feasibility Analysis</h3>
+                        <div class="flex gap-3">
+                             <button onclick="shareWhatsApp()" class="text-xs font-medium text-zinc-500 hover:text-brand-600 transition-colors flex items-center gap-2">
                                 <i class="fab fa-whatsapp"></i> Share
                             </button>
-                            <button onclick="exportPDF()" class="text-xs bg-slate-800 text-white px-3 py-1.5 rounded-lg hover:bg-slate-900 transition-colors font-medium flex items-center gap-1.5 shadow-sm">
-                                <i class="fas fa-file-pdf"></i> Export PDF
+                            <span class="text-zinc-200">|</span>
+                            <button onclick="exportPDF()" class="text-xs font-medium text-zinc-500 hover:text-zinc-900 transition-colors flex items-center gap-2">
+                                <i class="fas fa-arrow-down"></i> Technical Report
                             </button>
                         </div>
                     </div>
                     
-                    <div class="p-6">
-                        <div class="grid md:grid-cols-2 gap-8">
-                            <!-- Costs Section -->
-                            <div class="space-y-4">
-                                <div class="flex justify-between items-center text-sm">
-                                    <span class="text-slate-500 italic">Total Project Cost</span>
-                                    <span class="font-semibold" id="tableCost">₹0</span>
-                                </div>
-                                <div class="flex justify-between items-center text-sm text-brand-600 transition-colors duration-500">
-                                    <span class="font-medium">Govt. Subsidy / Benefits (-)</span>
-                                    <span class="font-bold" id="tableSubsidy">₹0</span>
-                                </div>
-                                <div class="h-px bg-slate-100"></div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm font-bold text-slate-700">Net Investment</span>
-                                    <span class="text-lg font-black text-brand-600 transition-colors duration-500" id="tableNet">₹0</span>
+                    <div class="p-8">
+                        <div class="grid md:grid-cols-2 gap-12">
+                            <!-- Financial Waterfall -->
+                            <div class="space-y-6">
+                                <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-4">Financial Model</h4>
+                                
+                                <div class="space-y-3">
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span class="text-zinc-500">Gross System Cost</span>
+                                        <span class="font-mono text-zinc-900" id="tableCost">₹0</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span class="text-zinc-500">Direct Benefit Transfer (DBT)</span>
+                                        <span class="font-mono text-brand-600 theme-transition" id="tableSubsidy">₹0</span>
+                                    </div>
+                                    <div class="h-px bg-zinc-100 my-2"></div>
+                                    <div class="flex justify-between items-center text-sm font-medium">
+                                        <span class="text-zinc-900">Net Investment</span>
+                                        <span class="font-mono text-zinc-900" id="tableNet">₹0</span>
+                                    </div>
                                 </div>
 
-                                <div class="mt-8 p-4 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                                    <h4 class="text-[10px] font-bold text-slate-500 uppercase mb-3">ROI Estimation</h4>
-                                    <div class="w-full bg-slate-200 rounded-full h-1.5 mb-2">
-                                        <div id="paybackBar" class="bg-brand-500 h-1.5 rounded-full transition-all duration-700" style="width: 0%"></div>
+                                <div class="pt-4">
+                                    <div class="flex justify-between text-[10px] font-medium text-zinc-400 uppercase tracking-wider mb-2">
+                                        <span>Breakeven Progress</span>
+                                        <span id="roiLabel" class="text-brand-600 theme-transition">Calculating...</span>
                                     </div>
-                                    <div class="flex justify-between text-[10px] font-medium text-slate-400">
-                                        <span id="roiLabel">Break even in ...</span>
+                                    <div class="w-full bg-zinc-100 rounded-full h-1">
+                                        <div id="paybackBar" class="bg-brand-500 h-1 rounded-full theme-transition transition-all duration-700" style="width: 0%"></div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Enviro Section -->
-                            <div class="bg-brand-50 rounded-2xl p-6 border border-brand-100 flex flex-col justify-center transition-colors duration-500">
-                                <h4 class="text-sm font-bold text-brand-800 mb-6 flex items-center gap-2 transition-colors duration-500">
-                                    <i class="fas fa-leaf"></i> Environmental Benefit
-                                </h4>
-                                <div class="space-y-6">
-                                    <div class="flex items-center gap-4">
-                                        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-brand-600 shadow-sm border border-brand-100 transition-colors duration-500">
-                                            <i id="enviroIcon1" class="fas fa-cloud-sun text-xl"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-lg font-bold text-brand-700 transition-colors duration-500" id="resCO2">0.00 tons</p>
-                                            <p class="text-xs text-brand-600 transition-colors duration-500">CO₂ Avoided Annually</p>
-                                        </div>
+                            <!-- Environmental Metrics -->
+                            <div>
+                                <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-widest mb-6">Environmental Impact</h4>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="p-4 rounded-lg bg-brand-50 border border-brand-500/10 theme-transition">
+                                        <i class="fas fa-smog text-brand-500 mb-3 text-lg theme-transition"></i>
+                                        <p class="text-xl font-mono font-medium text-brand-900 theme-transition" id="resCO2">0.00 t</p>
+                                        <p class="text-[10px] text-brand-600/70 uppercase tracking-wide mt-1 font-semibold theme-transition">Carbon Abatement</p>
                                     </div>
-                                    <div class="flex items-center gap-4">
-                                        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-brand-600 shadow-sm border border-brand-100 transition-colors duration-500">
-                                            <i id="enviroIcon2" class="fas fa-tree text-xl"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-lg font-bold text-brand-700 transition-colors duration-500" id="resTrees">0</p>
-                                            <p class="text-xs text-brand-600 transition-colors duration-500">Equivalent Trees Planted</p>
-                                        </div>
+                                    <div class="p-4 rounded-lg bg-zinc-50 border border-zinc-200">
+                                        <i class="fas fa-tree text-zinc-400 mb-3 text-lg"></i>
+                                        <p class="text-xl font-mono font-medium text-zinc-700" id="resTrees">0</p>
+                                        <p class="text-[10px] text-zinc-400 uppercase tracking-wide mt-1 font-semibold">Tree Equivalent</p>
                                     </div>
                                 </div>
                             </div>
@@ -280,182 +337,280 @@
                     </div>
                 </div>
 
-                <!-- External CTA -->
-                <div class="bg-slate-800 text-white p-6 rounded-2xl shadow-lg relative overflow-hidden group">
-                    <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <!-- Footer -->
+                <div class="border-t border-zinc-200 pt-8 mt-8">
+                    <div class="grid md:grid-cols-2 gap-8 mb-8">
                         <div>
-                            <h3 class="text-lg font-bold mb-1">Verify your site</h3>
-                            <p class="text-slate-400 text-sm">Connect with MNRE approved vendors for precise assessments.</p>
+                            <h5 class="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-3">Engineering Standards</h5>
+                            <ul class="space-y-2 text-[10px] text-zinc-500">
+                                <li>
+                                    <a href="https://cea.nic.in/cdm-co2-baseline-database/" target="_blank" class="hover:text-brand-600 transition-colors flex items-center gap-2 group">
+                                        <i class="fas fa-external-link-alt text-[8px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                        <span>CEA CO₂ Database v19 (0.716 kg/kWh)</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="https://webstore.iec.ch/publication/61215" target="_blank" class="hover:text-brand-600 transition-colors flex items-center gap-2 group">
+                                        <i class="fas fa-external-link-alt text-[8px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                        <span>IEC 61215 PV Degradation Standards</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="https://globalsolaratlas.info/" target="_blank" class="hover:text-brand-600 transition-colors flex items-center gap-2 group">
+                                        <i class="fas fa-external-link-alt text-[8px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                        <span>World Bank Global Solar Atlas 2.0</span>
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
-                        <button onclick="findVendors()" class="bg-brand-500 hover:bg-brand-400 px-6 py-3 rounded-xl font-bold text-sm transition-all transform hover:scale-105 shadow-xl duration-500">
-                            Find Local Vendors <i class="fas fa-map-marker-alt ml-2"></i>
-                        </button>
+                        <div>
+                            <h5 class="text-[10px] text-zinc-400 font-bold uppercase tracking-widest mb-3">Policy Framework</h5>
+                            <ul class="space-y-2 text-[10px] text-zinc-500">
+                                <li>
+                                    <a href="https://pmsuryaghar.gov.in/" target="_blank" class="hover:text-brand-600 transition-colors flex items-center gap-2 group">
+                                        <i class="fas fa-external-link-alt text-[8px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                        <span>PM Surya Ghar: Muft Bijli Yojana (2025)</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="https://cercind.gov.in/" target="_blank" class="hover:text-brand-600 transition-colors flex items-center gap-2 group">
+                                        <i class="fas fa-external-link-alt text-[8px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                        <span>CERC Tariff Inflation Guidelines</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="https://mnre.gov.in/" target="_blank" class="hover:text-brand-600 transition-colors flex items-center gap-2 group">
+                                        <i class="fas fa-external-link-alt text-[8px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                        <span>Ministry of New and Renewable Energy (MNRE)</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                    <i id="bgIcon" class="fas fa-solar-panel absolute -right-4 -bottom-4 text-8xl text-slate-700/20 group-hover:text-slate-700/40 transition-all"></i>
+                    
+                    <div class="border-t border-zinc-100 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                        <p class="text-[10px] text-zinc-400">© 2026 EcoImpact India DSS. Open Source License.</p>
+                        <div class="flex items-center gap-2 text-[10px] text-zinc-500 font-medium bg-zinc-50 px-3 py-1.5 rounded-full border border-zinc-100">
+                            <span>Designed & Developed by</span>
+                            <span class="text-zinc-900 font-bold">Saud Ahmad</span>
+                        </div>
+                    </div>
                 </div>
-
-                <p class="text-[10px] text-slate-400 text-center leading-relaxed">
-                    <strong>Technical Note:</strong> Calculations follow PM Surya Ghar Muft Bijli Yojana (2025) benchmarks. 
-                    Usable energy is capped by either generation capacity or household demand.
-                    Emission factor used: 0.82 kg CO₂/kWh (CEA).
-                </p>
             </div>
         </div>
     </main>
 
     <script>
+        // --- ENGINEERING CONSTANTS (Tier 1 Sources) ---
+        const CONSTANTS = {
+            GRID_EMISSION_FACTOR: 0.716, // kg CO2/kWh (CEA v19)
+            SYSTEM_LIFESPAN: 25, // Years
+            SOLAR_YIELD: 1642.5, // kWh/kWp/year (approx 4.5 * 365)
+            WIND_CF: 0.20, // 20% Capacity Factor for Small Wind
+            BIOGAS_CF: 0.85 // High availability if waste is present
+        };
+
         let currentSource = 'solar';
         let lastResultData = {};
+
+        function toggleAdvanced() {
+            const el = document.getElementById('advancedParams');
+            const icon = document.getElementById('advIcon');
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                icon.className = 'fas fa-minus text-[10px]';
+            } else {
+                el.classList.add('hidden');
+                icon.className = 'fas fa-plus text-[10px]';
+            }
+        }
 
         function setSource(source) {
             currentSource = source;
             const body = document.getElementById('mainBody');
             
-            // Reset button classes
-            document.querySelectorAll('.source-btn').forEach(btn => {
-                btn.className = 'source-btn flex flex-col items-center p-3 rounded-xl border-2 border-slate-100 bg-white text-slate-400 hover:opacity-80 transition-all';
+            // Set Body Theme Attribute
+            body.setAttribute('data-theme', source);
+
+            // Button Styles (Active/Inactive)
+            const sources = ['solar', 'biogas', 'wind'];
+            sources.forEach(s => {
+                const btn = document.getElementById(`btn-${s}`);
+                const icon = btn.querySelector('i');
+                const text = btn.querySelector('span');
+                
+                if (s === source) {
+                    btn.className = 'group relative flex flex-col items-center justify-center p-3 rounded-lg border border-brand-500 bg-brand-50 transition-all shadow-sm';
+                    icon.className = `fas fa-${getIcon(s)} mb-2 text-brand-600 transition-colors`;
+                    text.className = 'text-[10px] font-semibold text-brand-900';
+                } else {
+                    btn.className = 'group relative flex flex-col items-center justify-center p-3 rounded-lg border border-zinc-200 hover:border-zinc-300 bg-white transition-all';
+                    icon.className = `fas fa-${getIcon(s)} mb-2 text-zinc-400 group-hover:text-zinc-600 transition-colors`;
+                    text.className = 'text-[10px] font-semibold text-zinc-500 group-hover:text-zinc-700';
+                }
             });
 
-            // Set Specific Highlighting Colors and Theme
-            if (source === 'solar') {
-                body.setAttribute('data-theme', 'solar');
-                document.getElementById('btn-solar').className = 'source-btn flex flex-col items-center p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-600 transition-all';
-                updateIcons('fa-solar-panel');
-            } else if (source === 'wind') {
-                body.setAttribute('data-theme', 'wind');
-                document.getElementById('btn-wind').className = 'source-btn flex flex-col items-center p-3 rounded-xl border-2 border-sky-500 bg-sky-50 text-sky-600 transition-all';
-                updateIcons('fa-wind');
-            } else if (source === 'biogas') {
-                body.setAttribute('data-theme', 'biogas');
-                document.getElementById('btn-biogas').className = 'source-btn flex flex-col items-center p-3 rounded-xl border-2 border-amber-500 bg-amber-50 text-amber-600 transition-all';
-                updateIcons('fa-fire');
-            }
+            // Update Header Icon
+            document.getElementById('headerIcon').className = `fas fa-${getIcon(source)} text-lg text-brand-600 theme-transition`;
 
-            // Update Input labels/units
-            const capLabel = document.getElementById('capLabel');
-            const capUnit = document.getElementById('capUnit');
-            const capHint = document.getElementById('capHint');
-            const roofAreaContainer = document.getElementById('roofAreaContainer');
-
-            if (source === 'solar') {
-                capLabel.innerText = "Solar Capacity (kW)";
-                capUnit.innerText = "kW";
-                capHint.style.display = 'block';
-                roofAreaContainer.style.display = 'block';
-            } else if (source === 'biogas') {
-                capLabel.innerText = "Plant Size (m³/day)";
-                capUnit.innerText = "m³";
-                capHint.style.display = 'none';
-                roofAreaContainer.style.display = 'none';
-            } else {
-                capLabel.innerText = "Turbine Capacity (kW)";
-                capUnit.innerText = "kW";
-                capHint.style.display = 'none';
-                roofAreaContainer.style.display = 'none';
-            }
+            updateLabels(source);
             updateCalculation();
         }
 
-        function updateIcons(iconClass) {
-            document.getElementById('headerIcon').className = `fas ${iconClass} text-xl`;
-            document.getElementById('bgIcon').className = `fas ${iconClass} absolute -right-4 -bottom-4 text-8xl text-slate-700/20 group-hover:text-slate-700/40 transition-all`;
+        function getIcon(source) {
+            if (source === 'solar') return 'solar-panel';
+            if (source === 'biogas') return 'fire';
+            if (source === 'wind') return 'wind';
+        }
+
+        function updateLabels(source) {
+            const capLabel = document.getElementById('capLabel');
+            const capUnit = document.querySelectorAll('#capUnit, #recUnit');
+            const roofAreaContainer = document.getElementById('roofAreaContainer');
+
+            if (source === 'solar') {
+                capLabel.innerText = "Installed Capacity";
+                capUnit.forEach(el => el.innerText = "kWp");
+                roofAreaContainer.style.display = 'block';
+            } else if (source === 'biogas') {
+                capLabel.innerText = "Plant Volume";
+                capUnit.forEach(el => el.innerText = "m³");
+                roofAreaContainer.style.display = 'none';
+            } else {
+                capLabel.innerText = "Turbine Rating";
+                capUnit.forEach(el => el.innerText = "kW");
+                roofAreaContainer.style.display = 'none';
+            }
+        }
+
+        function calculatemetrics(systemSize, initialTariff, totalCost, pr, degradationRate, inflationRate) {
+            let cumulativeSavings = 0;
+            let totalEnergyGenerated = 0;
+            let currentTariff = initialTariff;
+            
+            let baseGeneration = 0;
+            if (currentSource === 'solar') baseGeneration = systemSize * CONSTANTS.SOLAR_YIELD * pr;
+            else if (currentSource === 'wind') baseGeneration = systemSize * 8760 * CONSTANTS.WIND_CF * pr;
+            else if (currentSource === 'biogas') baseGeneration = systemSize * 365 * 2 * pr;
+
+            let currentGen = baseGeneration;
+            let paybackYear = "25+";
+
+            for (let year = 1; year <= CONSTANTS.SYSTEM_LIFESPAN; year++) {
+                let yearSavings = currentGen * currentTariff;
+                cumulativeSavings += yearSavings;
+                totalEnergyGenerated += currentGen;
+
+                if (paybackYear === "25+" && cumulativeSavings >= totalCost) {
+                    let prevSavings = cumulativeSavings - yearSavings;
+                    let remaining = totalCost - prevSavings;
+                    paybackYear = (year - 1) + (remaining / yearSavings);
+                }
+
+                currentGen *= (1 - degradationRate);
+                currentTariff *= (1 + inflationRate);
+            }
+
+            let lcoe = totalEnergyGenerated > 0 ? totalCost / totalEnergyGenerated : 0;
+
+            return {
+                lifetimeSavings: cumulativeSavings,
+                totalEnergy: totalEnergyGenerated,
+                lcoe: lcoe,
+                carbonAbated: (totalEnergyGenerated * CONSTANTS.GRID_EMISSION_FACTOR / 1000),
+                payback: typeof paybackYear === 'number' ? paybackYear.toFixed(1) : paybackYear
+            };
         }
 
         function updateCalculation() {
-            // Get CSS Variables for calculations (not strictly needed but useful for consistent UI logic)
             const tariff = Number(document.getElementById('stateSelect').value);
             const bill = Number(document.getElementById('billInput').value);
             const rawCap = Number(document.getElementById('capInput').value);
             const roofArea = Number(document.getElementById('roofAreaInput').value);
-            const ownership = document.getElementById('ownSelect').value;
             
-            document.getElementById('billDisplay').innerText = '₹' + bill.toLocaleString('en-IN');
+            const pr = Number(document.getElementById('prInput').value);
+            const degRate = Number(document.getElementById('degInput').value) / 100;
+            const inflation = Number(document.getElementById('infInput').value) / 100;
 
+            document.getElementById('billDisplay').innerText = '₹' + bill.toLocaleString('en-IN');
+            document.getElementById('prDisplay').innerText = Math.round(pr * 100) + '%';
+            document.getElementById('degDisplay').innerText = (degRate * 100).toFixed(1) + '% p.a.';
+            document.getElementById('infDisplay').innerText = (inflation * 100).toFixed(1) + '%';
+            document.getElementById('gridRef').innerText = tariff.toFixed(2);
+
+            let finalCap = rawCap;
+            
             const suggestedCap = Math.max(1, Math.min(10, Math.round((bill / tariff * 12 / 1600) * 2) / 2));
             document.getElementById('recCap').innerText = suggestedCap;
 
-            let finalCap = rawCap;
-            let annualGen = 0;
-            let projectCost = 0;
-            let subsidy = 0;
-            let advisory = "";
-
             if (currentSource === 'solar') {
                 const maxCapByRoof = roofArea / 10;
-                if (rawCap > maxCapByRoof) {
-                    advisory += `Warning: Requested size exceeds roof area capacity (max ~${maxCapByRoof.toFixed(1)} kW). `;
-                    finalCap = maxCapByRoof;
-                }
-                annualGen = finalCap * 1600;
+                if (rawCap > maxCapByRoof) finalCap = maxCapByRoof; 
+            }
+
+            let projectCost = 0; 
+            let subsidy = 0;
+            
+            if (currentSource === 'solar') {
                 projectCost = finalCap * (finalCap > 3 ? 55000 : 60000);
                 if (finalCap >= 3) subsidy = 78000;
                 else if (finalCap >= 2) subsidy = 60000;
                 else if (finalCap >= 1) subsidy = 30000;
-                else subsidy = (finalCap * 30000);
-                if (ownership === 'shared') advisory += "Note: Society NOC and shared metering policies usually apply.";
+                else subsidy = finalCap * 30000;
             } else if (currentSource === 'biogas') {
-                annualGen = rawCap * 365 * 2;
-                projectCost = rawCap * 25000;
-                subsidy = rawCap >= 1 ? 12000 : 0;
-                advisory = "Requires consistent daily organic waste input (cow dung or food waste).";
+                projectCost = finalCap * 25000;
+                subsidy = finalCap >= 1 ? 12000 : 0;
             } else if (currentSource === 'wind') {
-                annualGen = rawCap * 1200;
-                projectCost = rawCap * 125000;
+                projectCost = finalCap * 125000;
                 subsidy = projectCost * 0.20;
-                advisory = "Effective only in documented high-wind regions (>5 m/s).";
             }
 
-            if (ownership === 'rented') advisory += " Rental agreement may restrict permanent fixtures.";
-
-            const annualConsump = (bill * 12) / tariff;
-            const usableEnergy = Math.min(annualGen, annualConsump);
             const netInvestment = Math.max(0, projectCost - subsidy);
-            const annualSavings = usableEnergy * tariff;
-            const paybackYrs = annualSavings > 100 ? netInvestment / annualSavings : 25;
 
-            const co2Saved = (usableEnergy * 0.82) / 1000;
-            const treesPlanted = Math.round(co2Saved * 45);
+            const metrics = calculatemetrics(finalCap, tariff, netInvestment, pr, degRate, inflation);
 
-            document.getElementById('resEnergy').innerText = Math.round(usableEnergy).toLocaleString('en-IN');
+            document.getElementById('resLCOE').innerText = metrics.lcoe.toFixed(2);
             document.getElementById('resNetCost').innerText = Math.round(netInvestment).toLocaleString('en-IN');
-            document.getElementById('resAnnualSavings').innerText = Math.round(annualSavings).toLocaleString('en-IN');
-            document.getElementById('resPayback').innerText = paybackYrs > 20 ? '20+' : paybackYrs.toFixed(1);
+            document.getElementById('resLifetimeSavings').innerText = (metrics.lifetimeSavings / 100000).toFixed(2) + " Lakh";
+            document.getElementById('resPayback').innerText = metrics.payback;
             
             document.getElementById('tableCost').innerText = '₹' + Math.round(projectCost).toLocaleString('en-IN');
             document.getElementById('tableSubsidy').innerText = '₹' + Math.round(subsidy).toLocaleString('en-IN');
             document.getElementById('tableNet').innerText = '₹' + Math.round(netInvestment).toLocaleString('en-IN');
 
-            document.getElementById('resCO2').innerText = co2Saved.toFixed(2) + ' tons';
-            document.getElementById('resTrees').innerText = treesPlanted;
-            document.getElementById('advisoryText').innerText = advisory || "Optimal choice for long-term energy security.";
+            document.getElementById('resCO2').innerText = metrics.carbonAbated.toFixed(2) + ' t';
+            document.getElementById('resTrees').innerText = Math.round(metrics.carbonAbated * 45);
 
-            document.getElementById('paybackBar').style.width = Math.max(5, (100 - (paybackYrs * 6.6))) + '%';
-            document.getElementById('roiLabel').innerText = paybackYrs > 20 ? "Long-term Profitability" : `Break even in ~${paybackYrs.toFixed(1)} years`;
+            let pbVal = parseFloat(metrics.payback);
+            if (isNaN(pbVal)) pbVal = 25;
+            document.getElementById('paybackBar').style.width = (100 - (pbVal/25 * 100)) + '%';
+            document.getElementById('roiLabel').innerText = `BEP ~${metrics.payback} Yrs`;
 
             lastResultData = {
                 source: currentSource.toUpperCase(),
-                cap: finalCap.toFixed(1),
-                energy: Math.round(usableEnergy).toLocaleString('en-IN'),
+                cap: finalCap.toFixed(2),
+                lcoe: metrics.lcoe.toFixed(2),
                 net: Math.round(netInvestment).toLocaleString('en-IN'),
-                savings: Math.round(annualSavings).toLocaleString('en-IN'),
-                payback: paybackYrs.toFixed(1),
-                co2: co2Saved.toFixed(2),
-                trees: treesPlanted
+                savings: Math.round(metrics.lifetimeSavings).toLocaleString('en-IN'),
+                payback: metrics.payback,
+                co2: metrics.carbonAbated.toFixed(2),
+                pr: (pr * 100).toFixed(0),
+                deg: (degRate * 100).toFixed(1)
             };
         }
 
         function shareWhatsApp() {
             if (!lastResultData.source) return;
-            const msg = `⚡ EcoImpact India Report\n` +
+            const msg = `🔬 EcoImpact Feasibility Report\n` +
                         `--------------------------\n` +
-                        `Tech: ${lastResultData.source}\n` +
-                        `Size: ${lastResultData.cap} Units\n` +
-                        `Annual Savings: ₹${lastResultData.savings}\n` +
-                        `Payback: ${lastResultData.payback} Years\n` +
-                        `CO2 Saved: ${lastResultData.co2} Tons\n` +
+                        `Tech: ${lastResultData.source} (${lastResultData.cap} kWp)\n` +
+                        `LCOE: ₹${lastResultData.lcoe}/kWh\n` +
+                        `Net CAPEX: ₹${lastResultData.net}\n` +
+                        `ROI Period: ${lastResultData.payback} Years\n` +
+                        `Carbon Abatement: ${lastResultData.co2} Tonnes\n` +
                         `--------------------------\n` +
-                        `Try the tool: https://can9899.github.io/EcoImpactIndia/\n` +
-                        `Generated via EcoImpact India Estimator`;
+                        `Modeled via EcoImpact DSS\n` +
+                        `Link: https://can9899.github.io/EcoImpactIndia/`;
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
@@ -464,51 +619,53 @@
             const doc = new jsPDF();
             const date = new Date().toLocaleDateString();
 
-            doc.setFontSize(22);
-            doc.setTextColor(3, 105, 161);
-            doc.text("Renewable Energy Impact Report", 20, 30);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(16);
+            doc.setTextColor(40, 40, 40);
+            doc.text("Techno-Economic Feasibility Report", 20, 20);
             
             doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
             doc.setTextColor(100);
-            doc.text(`Generated on: ${date} | EcoImpact India Tool v2.7`, 20, 38);
-            
-            doc.setLineWidth(0.5);
-            doc.setDrawColor(200);
-            doc.line(20, 42, 190, 42);
+            doc.text(`Generated: ${date} | EcoImpact India DSS`, 20, 26);
+            doc.line(20, 30, 190, 30);
 
-            doc.setFontSize(14);
-            doc.setTextColor(0);
-            doc.text("System Configuration", 20, 55);
             doc.setFontSize(12);
-            doc.text(`Source Technology: ${lastResultData.source}`, 25, 65);
-            doc.text(`Estimated Capacity: ${lastResultData.cap} units`, 25, 72);
+            doc.setTextColor(0);
+            doc.setFont("helvetica", "bold");
+            doc.text("1. Executive Summary", 20, 40);
             
-            doc.text("Financial Benefits", 20, 85);
-            doc.text(`Net Investment: Rs. ${lastResultData.net}`, 25, 95);
-            doc.text(`Annual Savings: Rs. ${lastResultData.savings}`, 25, 102);
-            doc.text(`Estimated Payback: ${lastResultData.payback} Years`, 25, 109);
-
-            doc.text("Environmental Impact", 20, 125);
-            doc.text(`CO2 Offset: ${lastResultData.co2} Tons / Year`, 25, 135);
-            doc.text(`Trees Equivalent: ${lastResultData.trees} Trees`, 25, 142);
-
+            doc.setFont("helvetica", "normal");
             doc.setFontSize(10);
+            doc.text(`System: ${lastResultData.source} (${lastResultData.cap} units)`, 25, 48);
+            doc.text(`LCOE: INR ${lastResultData.lcoe} / kWh`, 25, 54);
+            doc.text(`ROI Period: ${lastResultData.payback} Years`, 25, 60);
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(12);
+            doc.text("2. Financial Projection", 20, 75);
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.text(`Net CAPEX: INR ${lastResultData.net}`, 25, 83);
+            doc.text(`Lifetime OPEX Savings: INR ${lastResultData.savings}`, 25, 89);
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(12);
+            doc.text("3. Environmental Impact", 20, 105);
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.text(`Total Carbon Sequestration: ${lastResultData.co2} Tonnes CO2e`, 25, 113);
+
+            doc.setFontSize(8);
             doc.setTextColor(150);
-            doc.text("Note: These calculations are based on national averages and current MNRE policies.", 20, 160);
-            doc.text("Please consult an authorized vendor for a detailed site audit.", 20, 165);
+            doc.text("Methodology: IEC 61215 standards and CEA v19 Baseline.", 20, 280);
 
-            doc.save(`EcoImpact_Report_${lastResultData.source}.pdf`);
+            doc.save(`Feasibility_Report_${lastResultData.source}.pdf`);
         }
 
-        function findVendors() {
-            let query = '';
-            if (currentSource === 'solar') query = 'MNRE approved rooftop solar installers near me';
-            else if (currentSource === 'biogas') query = 'household biogas plant installers India';
-            else if (currentSource === 'wind') query = 'small wind turbine installers India';
-            window.open('https://www.google.com/search?q=' + encodeURIComponent(query), '_blank');
-        }
-
-        window.onload = () => updateCalculation();
+        window.onload = () => {
+            setSource('solar');
+        };
     </script>
 </body>
 </html>
